@@ -6,6 +6,8 @@ class TerminalWidget;
 class TerminalWindow {
 public:
     TerminalWindow();
+    ~TerminalWindow();
+    
     void show();
 
 private:

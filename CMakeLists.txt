@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(terk C)
+project(terk C CXX)
 
 # C standard
 set(CMAKE_C_STANDARD 17)
@@ -15,7 +15,9 @@ endif()
 # Collect all source files recursively
 file(GLOB_RECURSE SOURCES
     "${PROJECT_SOURCE_DIR}/src/*.c"
+    "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
+
 
 # Include directories (mirrors your modular structure)
 include_directories(
@@ -38,14 +40,4 @@ if (WIN32)
         Kernel32
         User32
     )
-endif()
-
-# Debug flags
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(STATUS "Building terk in Debug mode")
-    if (MSVC)
-        target_compile_options(terk PRIVATE /Zi)
-    else()
-        target_compile_options(terk PRIVATE -g)
-    endif()
 endif()
