@@ -1,5 +1,5 @@
-#include "TerminalWindow.hpp"
-#include "TerminalWidget.hpp"
+#include "kterm/ui/TerminalWindow.hpp"
+#include "kterm/ui/TerminalWidget.hpp"
 
 namespace kterm::ui {
 

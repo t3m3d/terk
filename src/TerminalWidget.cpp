@@ -1,52 +1,93 @@
 #include "kterm/ui/TerminalWidget.hpp"
 #include <QPainter>
 #include <QKeyEvent>
+#include <QFont>
 
-using namespace kterm::ui;
+namespace kterm::ui {
 
-TerminalWidget::TerminalWidget(QWidget* parent)
-    : QWidget(parent)
+TerminalWidget::TerminalWidget(const kterm::Config& config, QWidget* parent)
+    : QWidget(parent),
+      m_config(config),
+      m_terminal(80, 24),   // initial size; updated on resizeEvent
+      m_input(),
+      m_pty()
 {
     setFocusPolicy(Qt::StrongFocus);
 
-    setupPTY();
     setupRenderer();
+    setupPTY();
 
+    // Terminal tells us when to repaint
     m_terminal.setRenderCallback([this]() {
         update();
     });
 }
 
+// ------------------------------------------------------------
+// PTY setup — uses config.shell()
+// ------------------------------------------------------------
 void TerminalWidget::setupPTY() {
+    // PTY → Terminal
     m_pty.setOutputCallback([this](const std::vector<char>& data) {
         m_terminal.onPTYOutput(data);
+        update();
     });
 
-    m_pty.spawnShell("/bin/bash");
+    // Launch shell from config
+    m_pty.spawnShell(m_config.shell());
 }
 
+// ------------------------------------------------------------
+// Renderer setup — uses config.font + theme
+// ------------------------------------------------------------
 void TerminalWidget::setupRenderer() {
-    // Renderer is created during paintEvent with a QPainter
+    // Load font from config
+    QFont font(QString::fromStdString(m_config.fontFamily()),
+               m_config.fontSize());
+    setFont(font);
+
+    // Create renderer
+    m_renderer = new renderer::QtRenderer(font, m_cellWidth, m_cellHeight);
+
+    // Load theme from config
+    m_renderer->loadTheme(m_config.themePath());
 }
 
+// ------------------------------------------------------------
+// Paint event — draw terminal grid
+// ------------------------------------------------------------
 void TerminalWidget::paintEvent(QPaintEvent*) {
     QPainter painter(this);
 
-    if (!m_renderer)
-        m_renderer = new renderer::QtRenderer(&painter, m_cellWidth, m_cellHeight);
-
-    m_renderer->drawGrid(m_terminal.grid());
+    if (m_renderer) {
+        m_renderer->render(painter, m_terminal.grid());
+    }
 }
 
+// ------------------------------------------------------------
+// Keyboard → PTY
+// ------------------------------------------------------------
 void TerminalWidget::keyPressEvent(QKeyEvent* e) {
-    auto seq = m_input.translateToEscape(e->key(), input::Modifier::None);
-    if (!seq.empty())
-        m_pty.writeInput(seq);
+    QByteArray seq = m_input.translateKey(e);
+    if (!seq.isEmpty()) {
+        m_pty.write(seq);
+    }
 }
 
+// ------------------------------------------------------------
+// Resize terminal + renderer
+// ------------------------------------------------------------
 void TerminalWidget::resizeEvent(QResizeEvent*) {
     int cols = width() / m_cellWidth;
     int rows = height() / m_cellHeight;
+
     m_terminal.resize(cols, rows);
+
+    if (m_renderer) {
+        m_renderer->resize(cols, rows);
+    }
+
     m_pty.resize(cols, rows);
 }
+
+} // namespace kterm::ui
