@@ -10,23 +10,41 @@ public:
 
     void resize(int cols, int rows);
     void clear();
-    void clearLine();
+    void clearLine(int row);
 
     void putChar(char c);
 
+    // Cursor movement
     void cursorUp(int n);
     void cursorDown(int n);
     void cursorForward(int n);
     void cursorBack(int n);
     void setCursor(int row, int col);
 
-    const std::vector<std::vector<Cell>>& rows() const;
+    // Color + attribute control
+    void setFG16(int index);
+    void setBG16(int index);
+    void setFG256(int index);
+    void setBG256(int index);
+    void setFGTrue(int r, int g, int b);
+    void setBGTrue(int r, int g, int b);
+    void resetAttributes();
+
+    const std::vector<std::vector<Cell>>& rows() const { return m_cells; }
 
 private:
     int m_cols;
     int m_rows;
     int m_cursorRow;
     int m_cursorCol;
+
+    // Current drawing attributes
+    uint32_t m_currentFG;
+    uint32_t m_currentBG;
+
+    // Palettes
+    uint32_t palette16[16];
+    uint32_t palette256[256];
 
     std::vector<std::vector<Cell>> m_cells;
 
