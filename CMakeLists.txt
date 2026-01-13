@@ -41,3 +41,13 @@ if (WIN32)
         User32
     )
 endif()
+
+install(FILES
+    resources/config/terk.conf
+    DESTINATION share/terk
+)
+
+install(DIRECTORY
+    resources/themes
+    DESTINATION share/terk
+)

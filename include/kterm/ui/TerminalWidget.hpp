@@ -1,6 +1,8 @@
 #pragma once
 #include <QWidget>
 #include <QTimer>
+
+#include "kterm/Config.hpp"
 #include "kterm/core/Terminal.hpp"
 #include "kterm/renderer/QtRenderer.hpp"
 #include "kterm/input/InputHandler.hpp"
@@ -12,7 +14,8 @@ class TerminalWidget : public QWidget {
     Q_OBJECT
 
 public:
-    TerminalWidget(QWidget* parent = nullptr);
+    // NEW: constructor now accepts Config
+    TerminalWidget(const kterm::Config& config, QWidget* parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent*) override;
@@ -20,6 +23,7 @@ protected:
     void resizeEvent(QResizeEvent*) override;
 
 private:
+    kterm::Config m_config;          // NEW: store config
     core::Terminal m_terminal;
     renderer::QtRenderer* m_renderer = nullptr;
     input::InputHandler m_input;
@@ -28,8 +32,8 @@ private:
     int m_cellWidth = 8;
     int m_cellHeight = 16;
 
-    void setupPTY();
-    void setupRenderer();
+    void setupPTY();                 // will use config.shell()
+    void setupRenderer();            // will use config.fontFamily(), fontSize(), themePath()
 };
 
 }

@@ -1,34 +1,17 @@
-#include "kterm/TerminalWindow.h"
-#include "kterm/TerminalWidget.h"
+#include "TerminalWindow.hpp"
+#include "TerminalWidget.hpp"
 
-#include <iostream>
-#include <conio.h>
+namespace kterm::ui {
 
-TerminalWindow::TerminalWindow() {
-    terminal = std::make_unique<TerminalWidget>();
+TerminalWindow::TerminalWindow(const kterm::Config& config)
+    : m_config(config)
+{
+    setWindowTitle("terk");
+
+    // Pass config into TerminalWidget
+    setCentralWidget(new TerminalWidget(m_config, this));
+
+    resize(800, 600);
 }
 
-TerminalWindow::~TerminalWindow() = default;
-
-void TerminalWindow::show() {
-    bool running = true;
-
-    // Clear screen
-    std::cout << "\x1b[2J\x1b[H";
-
-    std::cout << "terk is running.\n";
-    std::cout << "Press 'q' to quit.\n";
-
-    while (running) {
-        if (_kbhit()) {
-            int key = _getch();
-            if (key == 'q' || key == 'Q') {
-                running = false;
-            }
-        }
-
-        // You can add rendering here later
-        // terminal->render();
-    }
 }
-
