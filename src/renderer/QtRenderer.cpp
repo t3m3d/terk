@@ -1,32 +1,63 @@
 #include "kterm/renderer/QtRenderer.hpp"
-#include <QColor>
-#include <QFontMetrics>
+#include <QPainter>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 using namespace kterm::renderer;
 
-QtRenderer::QtRenderer(QPainter* painter, int cellWidth, int cellHeight)
-    : m_painter(painter),
-      m_cellWidth(cellWidth),
-      m_cellHeight(cellHeight) {}
+QtRenderer::QtRenderer(const QFont& font, int cw, int ch)
+    : m_font(font), m_cellWidth(cw), m_cellHeight(ch)
+{
+}
 
-void QtRenderer::drawGrid(const Grid& grid) {
+void QtRenderer::resize(int cols, int rows) {
+    m_cols = cols;
+    m_rows = rows;
+}
+
+void QtRenderer::loadTheme(const std::string& path) {
+    QFile file(QString::fromStdString(path));
+    if (!file.open(QIODevice::ReadOnly)) {
+        return; // fallback to defaults
+    }
+
+    auto doc = QJsonDocument::fromJson(file.readAll());
+    if (!doc.isObject()) {
+        return;
+    }
+
+    auto obj = doc.object();
+
+    if (obj.contains("foreground"))
+        m_defaultFg = QColor(obj["foreground"].toString());
+
+    if (obj.contains("background"))
+        m_defaultBg = QColor(obj["background"].toString());
+}
+
+void QtRenderer::render(QPainter& painter, const core::Grid& grid) {
+    painter.setFont(m_font);
+
     const auto& rows = grid.rows();
-
     for (int r = 0; r < (int)rows.size(); ++r) {
         for (int c = 0; c < (int)rows[r].size(); ++c) {
-            drawCell(r, c, rows[r][c]);
+            drawCell(painter, r, c, rows[r][c]);
         }
     }
 }
 
-void QtRenderer::drawCell(int row, int col, const Cell& cell) {
+void QtRenderer::drawCell(QPainter& painter, int row, int col, const core::Cell& cell) {
     int x = col * m_cellWidth;
     int y = row * m_cellHeight;
 
-    // Background
-    m_painter->fillRect(x, y, m_cellWidth, m_cellHeight, QColor(cell.bg));
+    QColor bg = cell.bg.isValid() ? QColor(cell.bg) : m_defaultBg;
+    QColor fg = cell.fg.isValid() ? QColor(cell.fg) : m_defaultFg;
 
-    // Foreground text
-    m_painter->setPen(QColor(cell.fg));
-    m_painter->drawText(x, y + m_cellHeight - 2, QString(cell.ch));
+    painter.fillRect(x, y, m_cellWidth, m_cellHeight, bg);
+    painter.setPen(fg);
+
+    if (cell.ch != 0) {
+        painter.drawText(x, y + m_cellHeight - 2, QString(cell.ch));
+    }
 }
