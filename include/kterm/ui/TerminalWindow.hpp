@@ -1,15 +1,16 @@
 #pragma once
-#include <memory>
+#include <QMainWindow>
+#include "TerminalWidget.hpp"
 
-class TerminalWidget;
+namespace kterm::ui {
 
-class TerminalWindow {
+class TerminalWindow : public QMainWindow {
 public:
-    TerminalWindow();
-    ~TerminalWindow();
-    
-    void show();
-
-private:
-    std::unique_ptr<TerminalWidget> terminal;
+    TerminalWindow() {
+        setWindowTitle("terk");
+        setCentralWidget(new TerminalWidget(this));
+        resize(800, 600);
+    }
 };
+
+}

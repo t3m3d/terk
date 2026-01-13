@@ -1,7 +1,11 @@
-#include "kterm/TerminalWindow.h"
+#include <QApplication>
+#include "kterm/ui/TerminalWindow.hpp"
 
 int main(int argc, char** argv) {
-    TerminalWindow window;
-    window.show();
-    return 0;
+    QApplication app(argc, argv);
+
+    kterm::ui::TerminalWindow win;
+    win.show();
+
+    return app.exec();
 }
