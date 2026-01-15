@@ -8,9 +8,10 @@ bool Theme::loadFromFile(const std::string& path) {
     if (!file.is_open())
         return false;
 
-    // Parse JSON (stubbed for now)
-    m_scheme.fg = 0xFFFFFFFF;
-    m_scheme.bg = 0x00000000;
+    // Temporary stub until real JSON parsing is added
+    setFG(0xFFFFFFFF);
+    setBG(0x00000000);
+
     return true;
 }
 
