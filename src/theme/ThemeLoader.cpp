@@ -1,6 +1,8 @@
 #include "kterm/theme/ThemeLoader.hpp"
+#include "kterm/theme/Theme.hpp"
 #include <fstream>
 #include <sstream>
+#include <cctype>
 
 using namespace kterm::theme;
 
@@ -8,41 +10,47 @@ Theme ThemeLoader::loadFromFile(const std::string& path) {
     Theme theme;
 
     std::ifstream file(path);
-    if (!file.is_open()) {
+    if (!file.is_open())
         return theme; // return default theme
-    }
 
     std::stringstream buffer;
     buffer << file.rdbuf();
     std::string json = buffer.str();
 
-    // --- Minimal stub parser ---
-    // You can replace this with real JSON parsing later.
-    // For now, we look for simple "fg": "#RRGGBB" patterns.
-
     auto findValue = [&](const std::string& key) -> std::string {
-        size_t pos = json.find(key);
+
+        size_t pos = json.find("\"" + key + "\"");
         if (pos == std::string::npos)
             return "";
 
-        size_t start = json.find(":", pos);
-        size_t quote1 = json.find("\"", start);
-        size_t quote2 = json.find("\"", quote1 + 1);
-
-        if (quote1 == std::string::npos || quote2 == std::string::npos)
+        // Find colon
+        pos = json.find(":", pos);
+        if (pos == std::string::npos)
             return "";
 
-        return json.substr(quote1 + 1, quote2 - quote1 - 1);
+        // Skip whitespace and colon
+        while (pos < json.size() && (json[pos] == ':' || std::isspace(json[pos])))
+            pos++;
+
+        // Expect opening quote
+        if (pos >= json.size() || json[pos] != '"')
+            return "";
+
+        size_t end = json.find("\"", pos + 1);
+        if (end == std::string::npos)
+            return "";
+
+        return json.substr(pos + 1, end - pos - 1);
     };
 
     std::string fgHex = findValue("fg");
     std::string bgHex = findValue("bg");
 
     if (!fgHex.empty())
-        theme.m_scheme.fg = parseColor(fgHex);
+        theme.setFG(parseColor(fgHex));
 
     if (!bgHex.empty())
-        theme.m_scheme.bg = parseColor(bgHex);
+        theme.setBG(parseColor(bgHex));
 
     return theme;
 }
