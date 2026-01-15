@@ -68,9 +68,15 @@ void TerminalWidget::paintEvent(QPaintEvent*) {
 // Keyboard → PTY
 // ------------------------------------------------------------
 void TerminalWidget::keyPressEvent(QKeyEvent* e) {
-    QByteArray seq = m_input.translateKey(e);
-    if (!seq.isEmpty()) {
-        m_pty.write(seq);
+    using namespace kterm::input;
+    Modifier mod = Modifier::None;
+    if (e->modifiers() & Qt::ShiftModifier) mod = Modifier::Shift;
+    else if (e->modifiers() & Qt::ControlModifier) mod = Modifier::Ctrl;
+    else if (e->modifiers() & Qt::AltModifier) mod = Modifier::Alt;
+
+    std::string seq = m_input.translateToEscape(e->key(), mod);
+    if (!seq.empty()) {
+        m_pty.writeInput(seq);
     }
 }
 

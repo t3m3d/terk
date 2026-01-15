@@ -51,8 +51,11 @@ void QtRenderer::drawCell(QPainter& painter, int row, int col, const core::Cell&
     int x = col * m_cellWidth;
     int y = row * m_cellHeight;
 
-    QColor bg = cell.bg.isValid() ? QColor(cell.bg) : m_defaultBg;
-    QColor fg = cell.fg.isValid() ? QColor(cell.fg) : m_defaultFg;
+    QColor bg(cell.bg);
+    if (bg.alpha() == 0) bg = m_defaultBg;
+
+    QColor fg(cell.fg);
+    if (fg.alpha() == 0) fg = m_defaultFg;
 
     painter.fillRect(x, y, m_cellWidth, m_cellHeight, bg);
     painter.setPen(fg);
