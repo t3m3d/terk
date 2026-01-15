@@ -2,7 +2,7 @@
 #include <QFont>
 #include <QColor>
 #include <string>
-#include "kterm/core/Grid.hpp"
+#include "kterm/renderer/Grid.hpp"
 
 class QPainter;
 

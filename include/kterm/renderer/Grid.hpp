@@ -30,8 +30,7 @@ public:
     void setBGTrue(int r, int g, int b);
     void resetAttributes();
 
-    const std::vector<std::vector<Cell>>& rows() const { return m_cells; }
-
+    const std::vector<std::vector<Cell>>& rows() const;
 private:
     int m_cols;
     int m_rows;
