@@ -1,4 +1,4 @@
-#include "include/renderer/Grid.hpp"
+#include "kterm/renderer/Grid.hpp"
 #include <algorithm>
 
 using namespace kterm::renderer;

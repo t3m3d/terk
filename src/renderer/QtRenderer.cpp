@@ -1,4 +1,4 @@
-#include "include/renderer/QtRenderer.hpp"
+#include "kterm/renderer/QtRenderer.hpp"
 #include <QPainter>
 #include <QFile>
 #include <QJsonDocument>
