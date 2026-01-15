@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cstdint>
 #include "Theme.hpp"
 
 namespace kterm::theme {
