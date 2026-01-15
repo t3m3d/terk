@@ -25,4 +25,4 @@ private:
     void readLoop();
 };
 
-} // namespace kterm::pty
+}

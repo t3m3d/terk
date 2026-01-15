@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.16)
-project(terk C CXX)
+cmake_minimum_required(VERSION 3.21)
+project(terk LANGUAGES CXX)
 
-# C standard
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Warnings
 if (MSVC)
@@ -14,13 +13,17 @@ endif()
 
 # Collect all source files recursively
 file(GLOB_RECURSE SOURCES
-    "${PROJECT_SOURCE_DIR}/src/*.c"
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
 
+# Qt6 discovery
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
-# Include directories (mirrors your modular structure)
-include_directories(
+# Executable
+qt_add_executable(terk ${SOURCES})
+
+# Include directories (modern style)
+target_include_directories(terk PRIVATE
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/collect
     ${PROJECT_SOURCE_DIR}/include/render
@@ -29,12 +32,16 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include/branding
 )
 
-# Executable
-add_executable(terk ${SOURCES})
+# Link Qt6
+target_link_libraries(terk PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+)
 
 # Windows-specific libraries
 if (WIN32)
-    target_link_libraries(terk
+    target_link_libraries(terk PRIVATE
         Ws2_32
         Iphlpapi
         Kernel32
@@ -42,6 +49,7 @@ if (WIN32)
     )
 endif()
 
+# config + themes
 install(FILES
     resources/config/terk.conf
     DESTINATION share/terk
