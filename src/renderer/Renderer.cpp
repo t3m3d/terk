@@ -1,3 +1,3 @@
-#include "kterm/renderer/Renderer.hpp"
+#include "include/renderer/Renderer.hpp"
 
 using namespace kterm::renderer;
