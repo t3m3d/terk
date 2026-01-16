@@ -49,6 +49,10 @@ if (WIN32)
     )
 endif()
 
+if (UNIX AND NOT APPLE)
+    target_link_libraries(terk PRIVATE util)
+endif()
+
 # config + themes
 install(FILES
     resources/config/terk.conf
